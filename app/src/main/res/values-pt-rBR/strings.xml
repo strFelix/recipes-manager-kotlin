@@ -10,4 +10,10 @@
     <string name="create_account">Crie uma nova conta</string>
     <string name="your_name">Your name</string>
     <string name="your_password">Your password</string>
+    <string name="login_screen_button">SIGN IN</string>
+    <string name="login_title">Login</string>
+    <string name="login_subtitle">Please, sign in to continue</string>
+    <string name="your_e_mail">Your e-mail</string>
+    <string name="create_account_login_screen">Don\'t have an account? Sign Up</string>
+    <string name="create_account_button_login_screen">Sign up</string>
 </resources>
