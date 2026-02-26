@@ -5,4 +5,9 @@
     <string name="start_cooking">"Start\nCooking"</string>
     <string name="button_login">Login</string>
     <string name="button_signup">Sign up</string>
+    <string name="sign_up">Sign up</string>
+    <string name="create_account">Create a new account</string>
+    <string name="your_name">Your name</string>
+    <string name="your_e_mail">Your e-mail</string>
+    <string name="your_password">Your password</string>
 </resources>
