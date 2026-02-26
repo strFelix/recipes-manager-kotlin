@@ -15,4 +15,5 @@
     <string name="login_subtitle">Please, sign in to continue</string>
     <string name="create_account_login_screen">Don\'t have an account?</string>
     <string name="create_account_button_login_screen">Sign up</string>
+    <string name="search_by_recipes">Search by recipes</string>
 </resources>
