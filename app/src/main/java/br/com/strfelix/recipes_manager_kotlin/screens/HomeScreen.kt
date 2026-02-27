@@ -47,15 +47,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import br.com.strfelix.recipes_manager_kotlin.R
 import br.com.strfelix.recipes_manager_kotlin.ui.theme.RecipesmanagerkotlinTheme
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
+fun HomeScreen(navController: NavController?, email: String?) {
     Surface(modifier = Modifier.fillMaxSize()) {
         Scaffold(
             topBar = {
-                MyTopAppBar()
+                MyTopAppBar(email!!)
             },
             bottomBar = {
                 MyBottomAppBar()
@@ -80,7 +81,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyTopAppBar(modifier: Modifier = Modifier) {
+fun MyTopAppBar(email: String = "") {
     TopAppBar(
         modifier = Modifier
             .fillMaxWidth()
@@ -103,7 +104,7 @@ fun MyTopAppBar(modifier: Modifier = Modifier) {
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "lucas@email.com",
+                        text = email,
                         style = MaterialTheme.typography.displaySmall
                     )
                 }
@@ -249,7 +250,7 @@ private fun MyBottomAppBarPreview() {
 @Composable
 private fun MyTopAppBarPreview() {
     RecipesmanagerkotlinTheme {
-        MyTopAppBar()
+        MyTopAppBar("example@email.com")
     }
 }
 
@@ -274,6 +275,6 @@ private fun ContentScreenPreview() {
 @Composable
 private fun HomeScreenPreview() {
     RecipesmanagerkotlinTheme {
-        HomeScreen()
+        HomeScreen(navController = null, email = "example@email.com")
     }
 }

@@ -28,11 +28,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import br.com.strfelix.recipes_manager_kotlin.R
+import br.com.strfelix.recipes_manager_kotlin.routes.Destination
 import br.com.strfelix.recipes_manager_kotlin.ui.theme.RecipesmanagerkotlinTheme
 
 @Composable
-fun InitialScreen() {
+fun InitialScreen(navController: NavController?) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -80,7 +82,9 @@ fun InitialScreen() {
                 Spacer(modifier = Modifier.height(16.dp))
                 Row {
                     Button(
-                        onClick = {},
+                        onClick = {
+                            navController?.navigate(Destination.LoginScreen.route)
+                        },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme
                                 .colorScheme.primary
@@ -101,7 +105,9 @@ fun InitialScreen() {
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
-                        onClick = {},
+                        onClick = {
+                            navController?.navigate(Destination.SignupScreen.route)
+                        },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme
                                 .colorScheme.tertiary
@@ -138,6 +144,6 @@ fun InitialScreen() {
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO, locale = "en")
 fun InitialScreenPreview(){
     RecipesmanagerkotlinTheme() {
-        InitialScreen()
+        InitialScreen(null)
     }
 }

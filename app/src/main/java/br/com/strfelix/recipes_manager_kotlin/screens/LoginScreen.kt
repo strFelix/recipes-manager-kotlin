@@ -25,6 +25,8 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -34,11 +36,13 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import br.com.strfelix.recipes_manager_kotlin.R
+import br.com.strfelix.recipes_manager_kotlin.routes.Destination
 import br.com.strfelix.recipes_manager_kotlin.ui.theme.RecipesmanagerkotlinTheme
 
 @Composable
-fun LoginScreen(modifier: Modifier = Modifier) {
+fun LoginScreen(navController: NavController?) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -55,22 +59,33 @@ fun LoginScreen(modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             LoginTitle()
-            LoginForm()
+            LoginForm(navController)
         }
 
     }
 }
 
 @Composable
-fun LoginForm(modifier: Modifier = Modifier) {
+fun LoginForm(navController: NavController?) {
+
+    var emailState = remember {
+        mutableStateOf("")
+    }
+
+    var passwordState = remember {
+        mutableStateOf("")
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(32.dp)
     ) {
         OutlinedTextField(
-            value = "",
-            onValueChange = {},
+            value = emailState.value,
+            onValueChange = {
+                email -> emailState.value = email
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 4.dp),
@@ -100,8 +115,10 @@ fun LoginForm(modifier: Modifier = Modifier) {
             )
         )
         OutlinedTextField(
-            value = "",
-            onValueChange = {},
+            value = passwordState.value,
+            onValueChange = {
+                password -> passwordState.value = password
+            },
             modifier = Modifier
                 .fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
@@ -137,7 +154,9 @@ fun LoginForm(modifier: Modifier = Modifier) {
         )
         Spacer(modifier = Modifier.height(32.dp))
         Button(
-            onClick = {},
+            onClick = {
+                navController?.navigate(Destination.HomeScreen.createRoute(emailState.value))
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
@@ -160,7 +179,9 @@ fun LoginForm(modifier: Modifier = Modifier) {
                 style = MaterialTheme.typography.bodyMedium
             )
             TextButton(
-                onClick = {}
+                onClick = {
+                    navController?.navigate(Destination.SignupScreen.route)
+                },
             ) {
                 Text(
                     text = stringResource(R.string.sign_up),
@@ -201,7 +222,7 @@ fun LoginTitle(){
 @Composable
 private fun SignupUserFormPreview() {
     RecipesmanagerkotlinTheme {
-        LoginForm()
+        LoginForm(null)
     }
 }
 
@@ -225,6 +246,6 @@ private fun LoginTitlePreview() {
 @Composable
 private fun LoginScreenPreview() {
     RecipesmanagerkotlinTheme {
-        LoginScreen()
+        LoginScreen(null)
     }
 }

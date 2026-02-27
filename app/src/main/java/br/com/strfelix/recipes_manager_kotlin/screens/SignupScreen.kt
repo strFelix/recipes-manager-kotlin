@@ -29,6 +29,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -111,14 +113,29 @@ fun UserImage(modifier: Modifier = Modifier) {
 
 @Composable
 fun SignupUserForm(modifier: Modifier = Modifier) {
+
+    var nameState = remember {
+        mutableStateOf("")
+    }
+
+    var emailState = remember {
+        mutableStateOf("")
+    }
+
+    var passwordState = remember {
+        mutableStateOf("")
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(32.dp)
     ) {
         OutlinedTextField(
-            value = "",
-            onValueChange = {},
+            value = nameState.value,
+            onValueChange = {
+                name -> nameState.value = name
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 4.dp),
@@ -148,8 +165,10 @@ fun SignupUserForm(modifier: Modifier = Modifier) {
             )
         )
         OutlinedTextField(
-            value = "",
-            onValueChange = {},
+            value = emailState.value,
+            onValueChange = {
+                email -> emailState.value = email
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 4.dp),
@@ -178,8 +197,10 @@ fun SignupUserForm(modifier: Modifier = Modifier) {
             )
         )
         OutlinedTextField(
-            value = "",
-            onValueChange = {},
+            value = passwordState.value,
+            onValueChange = {
+                password -> passwordState.value = password
+            },
             modifier = Modifier
                 .fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
