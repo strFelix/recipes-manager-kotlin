@@ -1,14 +1,14 @@
 package br.com.strfelix.recipes_manager_kotlin.routes
 
 
+import android.content.Intent
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import br.com.strfelix.recipes_manager_kotlin.screens.HomeScreen
 import br.com.strfelix.recipes_manager_kotlin.screens.InitialScreen
 import br.com.strfelix.recipes_manager_kotlin.screens.LoginScreen
@@ -25,6 +25,12 @@ fun NavigationRoutes() {
         composable(Destination.InitialScreen.route){ InitialScreen(navController) }
         composable(
             route = Destination.HomeScreen.route,
+            deepLinks = listOf(
+                navDeepLink {
+                    uriPattern = "https://recipesmanagerkotlin.strfelix.com.br/email/{email}"
+                    action = Intent.ACTION_VIEW
+                }
+            ),
             arguments = listOf(navArgument("email") { type = NavType.StringType })
         ){ backStackEntry ->
             var email = backStackEntry.arguments?.getString("email")
