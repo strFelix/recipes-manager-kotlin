@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
+import br.com.strfelix.recipes_manager_kotlin.screens.CategoryRecipeScreen
 import br.com.strfelix.recipes_manager_kotlin.screens.HomeScreen
 import br.com.strfelix.recipes_manager_kotlin.screens.InitialScreen
 import br.com.strfelix.recipes_manager_kotlin.screens.LoginScreen
@@ -35,6 +36,17 @@ fun NavigationRoutes() {
         ){ backStackEntry ->
             var email = backStackEntry.arguments?.getString("email")
             HomeScreen(navController, email)
+        }
+        composable(
+            route = Destination.CategoryRecipeScreen.route,
+            arguments = listOf(
+                navArgument(name = "id") {
+                    type = NavType.IntType
+                }
+            )
+        ) { backStackEntry ->
+            var categoryId = backStackEntry.arguments?.getInt("id")
+            CategoryRecipeScreen(categoryId, navController)
         }
         composable(Destination.SignupScreen.route) { SignupScreen() }
         composable(Destination.LoginScreen.route) { LoginScreen(navController) }

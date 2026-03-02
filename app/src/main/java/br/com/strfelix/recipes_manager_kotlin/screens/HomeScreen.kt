@@ -5,14 +5,17 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -49,6 +52,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import br.com.strfelix.recipes_manager_kotlin.R
+import br.com.strfelix.recipes_manager_kotlin.components.CategoryItem
+import br.com.strfelix.recipes_manager_kotlin.components.RecipeItem
+import br.com.strfelix.recipes_manager_kotlin.repository.getAllCategories
+import br.com.strfelix.recipes_manager_kotlin.repository.getAllRecipes
+import br.com.strfelix.recipes_manager_kotlin.routes.Destination
 import br.com.strfelix.recipes_manager_kotlin.ui.theme.RecipesmanagerkotlinTheme
 
 @Composable
@@ -75,7 +83,7 @@ fun HomeScreen(navController: NavController?, email: String?) {
                 }
             }
         ) { paddingValues ->
-            ContentScreen(modifier = Modifier.padding(paddingValues))
+            ContentScreen(modifier = Modifier.padding(paddingValues), navController)
         }
     }
 }
@@ -131,18 +139,22 @@ fun MyTopAppBar(email: String = "") {
 }
 
 @Composable
-fun ContentScreen(modifier: Modifier = Modifier) {
+fun ContentScreen(modifier: Modifier = Modifier, navController: NavController?) {
+
+    val categories = getAllCategories();
+    val recipes = getAllRecipes();
+
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 0.dp)
     ) {
         OutlinedTextField(
             value = "",
             onValueChange = {},
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp),
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults
                 .colors(
@@ -164,11 +176,10 @@ fun ContentScreen(modifier: Modifier = Modifier) {
                 Text(text = stringResource(R.string.search_by_recipes))
             }
         )
-        Spacer(modifier = Modifier.height(16.dp))
         Card(
             modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 8.dp)
                 .fillMaxWidth()
-                .padding(bottom = 16.dp)
                 .height(112.dp)
         ) {
             Image(
@@ -181,14 +192,46 @@ fun ContentScreen(modifier: Modifier = Modifier) {
         Text(
             text = "Categories",
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
-        Spacer(modifier = Modifier.height(132.dp))
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        ) {
+            items(categories) { category ->
+                CategoryItem(
+                    category = category,
+                    onClick = {
+                        navController!!.navigate(
+                            route = Destination
+                                .CategoryRecipeScreen
+                                .createRoute(id = category.id)
+                        )
+                    }
+                )
+            }
+        }
         Text(
             text = "Newly added recipes",
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
+        LazyColumn(
+            contentPadding = PaddingValues(
+                vertical = 16.dp,
+                horizontal = 16.dp
+            ),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(recipes) { recipe ->
+                RecipeItem(recipe)
+            }
+        }
     }
 }
 
@@ -263,7 +306,7 @@ private fun MyTopAppBarPreview() {
 @Composable
 private fun ContentScreenPreview() {
     RecipesmanagerkotlinTheme {
-        ContentScreen()
+        ContentScreen(navController = null)
     }
 }
 
