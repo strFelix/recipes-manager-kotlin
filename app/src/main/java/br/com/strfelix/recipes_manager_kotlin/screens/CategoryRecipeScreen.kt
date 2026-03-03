@@ -96,7 +96,7 @@ fun CategoryRecipeScreen(categoryId: Int?, navController: NavController?) {
             ) {
                 IconButton(
                     onClick = {
-                        navController!!.navigate(route = Destination.HomeScreen.createRoute(""))
+                        navController!!.navigate(route = Destination.HomeScreen.route)
                     },
                 ) {
                     Icon(

@@ -11,14 +11,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.RemoveRedEye
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -29,6 +34,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -37,12 +43,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import br.com.strfelix.recipes_manager_kotlin.R
+import br.com.strfelix.recipes_manager_kotlin.repository.SharedPreferencesUserRepository
+import br.com.strfelix.recipes_manager_kotlin.repository.UserRepository
 import br.com.strfelix.recipes_manager_kotlin.routes.Destination
 import br.com.strfelix.recipes_manager_kotlin.ui.theme.RecipesmanagerkotlinTheme
 
 @Composable
-fun LoginScreen(navController: NavController?) {
+fun LoginScreen(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -66,7 +75,7 @@ fun LoginScreen(navController: NavController?) {
 }
 
 @Composable
-fun LoginForm(navController: NavController?) {
+fun LoginForm(navController: NavController) {
 
     var emailState = remember {
         mutableStateOf("")
@@ -75,6 +84,17 @@ fun LoginForm(navController: NavController?) {
     var passwordState = remember {
         mutableStateOf("")
     }
+
+    var showPassword = remember {
+        mutableStateOf(false)
+    }
+
+    var authenticateError = remember {
+        mutableStateOf(false)
+    }
+
+    val userRepository: UserRepository = SharedPreferencesUserRepository(LocalContext.current)
+
 
     Column(
         modifier = Modifier
@@ -141,11 +161,20 @@ fun LoginForm(navController: NavController?) {
                 )
             },
             trailingIcon = {
-                Icon(
-                    imageVector = Icons.Default.RemoveRedEye,
-                    contentDescription = "",
-                    tint = MaterialTheme.colorScheme.tertiary
-                )
+                val image = if (showPassword.value) {
+                    Icons.Default.Visibility
+                } else {
+                    Icons.Default.VisibilityOff
+                }
+                IconButton(
+                    onClick = {showPassword.value = !showPassword.value}
+                ) {
+                    Icon(
+                        imageVector = image,
+                        contentDescription = "",
+                        tint = MaterialTheme.colorScheme.tertiary
+                    )
+                }
             },
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.NumberPassword,
@@ -155,7 +184,15 @@ fun LoginForm(navController: NavController?) {
         Spacer(modifier = Modifier.height(32.dp))
         Button(
             onClick = {
-                navController?.navigate(Destination.HomeScreen.createRoute(emailState.value))
+                val authenticate =
+                    userRepository.login(emailState.value, passwordState.value)
+                if (authenticate) {
+                    navController!!.navigate(
+                        Destination.HomeScreen.route
+                    )
+                } else {
+                    authenticateError.value = true
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -166,6 +203,21 @@ fun LoginForm(navController: NavController?) {
                 text = stringResource(R.string.login_screen_button),
                 style = MaterialTheme.typography.labelMedium
             )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        if (authenticateError.value){
+            Row {
+                Icon(
+                    imageVector = Icons.Default.Error,
+                    contentDescription = "",
+                    tint = MaterialTheme.colorScheme.error
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.authentication_error),
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
         }
         Spacer(modifier = Modifier.height(16.dp))
         Row(
@@ -222,7 +274,7 @@ fun LoginTitle(){
 @Composable
 private fun SignupUserFormPreview() {
     RecipesmanagerkotlinTheme {
-        LoginForm(null)
+        LoginForm(rememberNavController())
     }
 }
 
@@ -246,6 +298,6 @@ private fun LoginTitlePreview() {
 @Composable
 private fun LoginScreenPreview() {
     RecipesmanagerkotlinTheme {
-        LoginScreen(null)
+        LoginScreen(rememberNavController())
     }
 }

@@ -1,12 +1,12 @@
 package br.com.strfelix.recipes_manager_kotlin.screens
 
 import android.content.res.Configuration
+import android.util.Patterns
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.Button
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,36 +16,47 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.RemoveRedEye
-import androidx.compose.material.icons.rounded.Email
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import br.com.strfelix.recipes_manager_kotlin.R
+import br.com.strfelix.recipes_manager_kotlin.model.User
+import br.com.strfelix.recipes_manager_kotlin.repository.SharedPreferencesUserRepository
+import br.com.strfelix.recipes_manager_kotlin.repository.UserRepository
+import br.com.strfelix.recipes_manager_kotlin.routes.Destination
 import br.com.strfelix.recipes_manager_kotlin.ui.theme.RecipesmanagerkotlinTheme
 
 
 @Composable
-fun SignupScreen(modifier: Modifier = Modifier) {
+fun SignupScreen(navController: NavHostController) {
     Box(
         modifier = Modifier
             .fillMaxSize().background(MaterialTheme.colorScheme.background)
@@ -63,7 +74,7 @@ fun SignupScreen(modifier: Modifier = Modifier) {
             TitleComponent()
             Spacer(modifier = Modifier.height(48.dp))
             UserImage()
-            SignupUserForm()
+            SignupUserForm(navController)
         }
 
     }
@@ -112,19 +123,28 @@ fun UserImage(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun SignupUserForm(modifier: Modifier = Modifier) {
+fun SignupUserForm(navController: NavController) {
 
-    var nameState = remember {
-        mutableStateOf("")
+    var nameState = remember { mutableStateOf("") }
+    var emailState = remember { mutableStateOf("") }
+    var passwordState = remember { mutableStateOf("") }
+
+    var isNameError = remember { mutableStateOf(false) }
+    var isEmailError = remember { mutableStateOf(false) }
+    var isPasswordError = remember { mutableStateOf(false) }
+
+    var showDialogError = remember { mutableStateOf(false) }
+    var showDialogSuccess = remember { mutableStateOf(false) }
+
+    fun validate(): Boolean {
+        isNameError.value = nameState.value.length < 3
+        isEmailError.value = emailState.value.length < 3 || !Patterns.EMAIL_ADDRESS.matcher(emailState.value).matches()
+        isPasswordError.value = passwordState.value.length < 3
+        return !isNameError.value && !isEmailError.value && !isPasswordError.value
     }
 
-    var emailState = remember {
-        mutableStateOf("")
-    }
-
-    var passwordState = remember {
-        mutableStateOf("")
-    }
+    val userRepository: UserRepository =
+        SharedPreferencesUserRepository(LocalContext.current)
 
     Column(
         modifier = Modifier
@@ -162,7 +182,23 @@ fun SignupUserForm(modifier: Modifier = Modifier) {
                 keyboardType = KeyboardType.Text,
                 capitalization = KeyboardCapitalization.Words,
                 imeAction = ImeAction.Next
-            )
+            ),
+            isError = isNameError.value,
+            trailingIcon = {
+                if (isNameError.value){
+                    Icon(imageVector = Icons.Default.Error, contentDescription = null)
+                }
+            },
+            supportingText = {
+                if (isNameError.value){
+                    Text(
+                        text = stringResource(R.string.username_is_required),
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.End,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
         )
         OutlinedTextField(
             value = emailState.value,
@@ -194,7 +230,23 @@ fun SignupUserForm(modifier: Modifier = Modifier) {
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Email,
                 imeAction = ImeAction.Next
-            )
+            ),
+            isError = isEmailError.value,
+            trailingIcon = {
+                if (isEmailError.value){
+                    Icon(imageVector = Icons.Default.Error, contentDescription = null)
+                }
+            },
+            supportingText = {
+                if (isEmailError.value){
+                    Text(
+                        text = stringResource(R.string.email_is_required),
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.End,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
         )
         OutlinedTextField(
             value = passwordState.value,
@@ -222,21 +274,45 @@ fun SignupUserForm(modifier: Modifier = Modifier) {
                     tint = MaterialTheme.colorScheme.tertiary
                 )
             },
+            isError = isEmailError.value,
             trailingIcon = {
-                Icon(
-                    imageVector = Icons.Default.RemoveRedEye,
-                    contentDescription = "",
-                    tint = MaterialTheme.colorScheme.tertiary
-                )
+                if(isPasswordError.value){
+                    Icon(imageVector = Icons.Default.Error, contentDescription = "")
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.RemoveRedEye,
+                        contentDescription = "",
+                        tint = MaterialTheme.colorScheme.tertiary
+                    )
+                }
             },
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.NumberPassword,
                 imeAction = ImeAction.Done
-            )
+            ),
+            supportingText = {
+                if (isEmailError.value){
+                    Text(
+                        text = stringResource(R.string.password_is_required),
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.End,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
         )
         Spacer(modifier = Modifier.height(32.dp))
         Button(
-            onClick = {},
+            onClick = {
+                if(validate()){
+                    userRepository
+                        .saveUser(User(name = nameState.value, email = emailState.value, password = passwordState.value))
+                    showDialogSuccess.value = true
+                }
+                else {
+                    showDialogError.value = true
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
@@ -245,6 +321,44 @@ fun SignupUserForm(modifier: Modifier = Modifier) {
             Text(
                 text = stringResource(R.string.create_account),
                 style = MaterialTheme.typography.labelMedium
+            )
+        }
+        if (showDialogSuccess.value){
+            AlertDialog(
+                onDismissRequest = { showDialogError.value = false },
+                title = {
+                    Text(text = "Sucess")
+                },
+                text = {
+                    Text(text = "Account created sucessfully")
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showDialogSuccess.value = false
+                        navController.navigate(Destination.LoginScreen.route) }
+                    ) {
+                        Text(text = "OK")
+                    }
+                }
+
+            )
+        }
+
+        if (showDialogError.value){
+            AlertDialog(
+                onDismissRequest = { showDialogError.value = false },
+                title = {
+                    Text(text = "Error")
+                },
+                text = {
+                    Text(text = "Please fill all fields correctly")
+                },
+                confirmButton = {
+                    TextButton(onClick = { showDialogSuccess.value = false }) {
+                        Text(text = "OK")
+                    }
+                }
+
             )
         }
     }
@@ -258,7 +372,7 @@ fun SignupUserForm(modifier: Modifier = Modifier) {
 @Composable
 private fun SignupUserFormPreview() {
     RecipesmanagerkotlinTheme {
-        SignupUserForm()
+        SignupUserForm(rememberNavController())
     }
 }
 
@@ -295,7 +409,7 @@ private fun TitleComponentPreview() {
 @Composable
 private fun SignupScreenPreview() {
     RecipesmanagerkotlinTheme {
-        SignupScreen()
+        SignupScreen(rememberNavController())
     }
 
 }

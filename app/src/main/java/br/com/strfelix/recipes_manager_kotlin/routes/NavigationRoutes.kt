@@ -32,10 +32,10 @@ fun NavigationRoutes() {
                     action = Intent.ACTION_VIEW
                 }
             ),
-            arguments = listOf(navArgument("email") { type = NavType.StringType })
+//            arguments = listOf(navArgument("email") { type = NavType.StringType })
         ){ backStackEntry ->
-            var email = backStackEntry.arguments?.getString("email")
-            HomeScreen(navController, email)
+//            var email = backStackEntry.arguments?.getString("email")
+            HomeScreen(navController)
         }
         composable(
             route = Destination.CategoryRecipeScreen.route,
@@ -48,7 +48,7 @@ fun NavigationRoutes() {
             var categoryId = backStackEntry.arguments?.getInt("id")
             CategoryRecipeScreen(categoryId, navController)
         }
-        composable(Destination.SignupScreen.route) { SignupScreen() }
+        composable(Destination.SignupScreen.route) { SignupScreen(navController) }
         composable(Destination.LoginScreen.route) { LoginScreen(navController) }
     }
 }

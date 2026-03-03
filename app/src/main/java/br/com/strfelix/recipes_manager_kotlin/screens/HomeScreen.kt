@@ -45,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -54,17 +55,19 @@ import androidx.navigation.NavController
 import br.com.strfelix.recipes_manager_kotlin.R
 import br.com.strfelix.recipes_manager_kotlin.components.CategoryItem
 import br.com.strfelix.recipes_manager_kotlin.components.RecipeItem
+import br.com.strfelix.recipes_manager_kotlin.repository.SharedPreferencesUserRepository
+import br.com.strfelix.recipes_manager_kotlin.repository.UserRepository
 import br.com.strfelix.recipes_manager_kotlin.repository.getAllCategories
 import br.com.strfelix.recipes_manager_kotlin.repository.getAllRecipes
 import br.com.strfelix.recipes_manager_kotlin.routes.Destination
 import br.com.strfelix.recipes_manager_kotlin.ui.theme.RecipesmanagerkotlinTheme
 
 @Composable
-fun HomeScreen(navController: NavController?, email: String?) {
+fun HomeScreen(navController: NavController?) {
     Surface(modifier = Modifier.fillMaxSize()) {
         Scaffold(
             topBar = {
-                MyTopAppBar(email!!)
+                MyTopAppBar()
             },
             bottomBar = {
                 MyBottomAppBar()
@@ -89,7 +92,9 @@ fun HomeScreen(navController: NavController?, email: String?) {
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyTopAppBar(email: String = "") {
+fun MyTopAppBar() {
+    val userRepository: UserRepository = SharedPreferencesUserRepository(LocalContext.current)
+    val user = userRepository.getUser()
     TopAppBar(
         modifier = Modifier
             .fillMaxWidth()
@@ -106,13 +111,13 @@ fun MyTopAppBar(email: String = "") {
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = "Hello, Lucas!",
+                        text = "Hello, ${user.name}!",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = email,
+                        text = user.email,
                         style = MaterialTheme.typography.displaySmall
                     )
                 }
@@ -293,7 +298,7 @@ private fun MyBottomAppBarPreview() {
 @Composable
 private fun MyTopAppBarPreview() {
     RecipesmanagerkotlinTheme {
-        MyTopAppBar("example@email.com")
+        MyTopAppBar()
     }
 }
 
@@ -318,6 +323,6 @@ private fun ContentScreenPreview() {
 @Composable
 private fun HomeScreenPreview() {
     RecipesmanagerkotlinTheme {
-        HomeScreen(navController = null, email = "example@email.com")
+        HomeScreen(navController = null)
     }
 }
